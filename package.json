@@ -12,8 +12,7 @@
     "gulp-css-url-adjuster": "^0.2.3",
     "gulp-flatten": "^0.1.1",
     "gulp-mustache": "~1.1.1",
-    "gulp-rename": "^1.2.2",
-    "run-sequence": "^1.1.5"
+    "gulp-rename": "^1.2.2"
   },
   "dependencies": {
     "autoprefixer-core": "^5.2.1",
