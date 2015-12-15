@@ -1,13 +1,14 @@
 var gulp = require('gulp'),
-    concat = require('gulp-concat'),
     concatCSS = require('gulp-concat-css'),
     browserSync = require('browser-sync').create(),
     reload = browserSync.reload,
     url = require('gulp-css-url-adjuster'),
-    autoprefixer = require('autoprefixer-core'),
+    autoprefixer = require('autoprefixer'),
     postcss = require('gulp-postcss'),
     flatten = require('gulp-flatten'),
     mustache = require('gulp-mustache'),
+    webpack = require('webpack'),
+    gutil = require('gulp-util'),
     clean = require('del'),
     params = {
         out: 'public/',
@@ -22,26 +23,20 @@ gulp.task('clean', function () {
 });
 
 gulp.task('html', function () {
-    return gulp.src('html/*.html', {
-        since: gulp.lastRun('html')
-    })
+    return gulp.src('html/*.html')
     .pipe(mustache())
     .pipe(gulp.dest(params.out))
     .pipe(reload({ stream: true }));
 });
 
 gulp.task('favicon', function () {
-    return gulp.src('html/favicon.ico', {
-        since: gulp.lastRun('favicon')
-    })
-        .pipe(gulp.dest(params.out))
-        .pipe(reload({ stream: true }));
+    return gulp.src('html/favicon.ico')
+    .pipe(gulp.dest(params.out))
+    .pipe(reload({ stream: true }));
 });
 
 gulp.task('style', function () {
-    return gulp.src('blocks/style.css', {
-        since: gulp.lastRun('style')
-    })
+    return gulp.src('blocks/style.css')
     .pipe(concatCSS('style.css', {
         rebaseUrls: false
     }))
@@ -57,25 +52,27 @@ gulp.task('style', function () {
 });
 
 gulp.task('css', function () {
-    return gulp.src('css/*.css', {
-        since: gulp.lastRun('css')
-    })
+    return gulp.src('css/*.css')
     .pipe(gulp.dest(params.css))
     .pipe(reload({ stream: true }));
 });
 
-gulp.task('js', function () {
-    return gulp.src('js/*.js', {
-        since: gulp.lastRun('js')
-    })
+gulp.task('js', function (done) {
+    /* return gulp.src('js/home.js')
+    .pipe(webpack(require('./webpack.config.js')))
     .pipe(gulp.dest(params.js))
-    .pipe(reload({ stream: true }));
+    .pipe(reload({ stream: true }));*/
+    webpack(require('./webpack.config.js'), function (err, stats) {
+        if (err) throw new gutil.PluginError('webpack', err);
+        gutil.log('[webpack]', stats.toString({
+            // output options
+        }));
+        done();
+    });
 });
 
 gulp.task('fonts', function () {
-    return gulp.src('fonts/**/*', {
-        since: gulp.lastRun('fonts')
-    })
+    return gulp.src('fonts/**/*')
     .pipe(gulp.dest(params.fonts))
     .pipe(reload({ stream: true }));
 });
@@ -98,11 +95,10 @@ gulp.task('server', function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch('html/*', gulp.parallel('html'));
+    gulp.watch('html/**/*', gulp.parallel('html'));
     gulp.watch(['blocks/**/*', 'blocks/style.css'], gulp.parallel('style', 'images'));
-    gulp.watch('css/*', gulp.parallel('css'));
-    gulp.watch('js/*', gulp.parallel('js'));
-    gulp.watch('fonts/*', gulp.parallel('fonts'));
+    gulp.watch('css/**/*', gulp.parallel('css'));
+    gulp.watch('fonts/**/*', gulp.parallel('fonts'));
 });
 
 gulp.task('build', gulp.series(
