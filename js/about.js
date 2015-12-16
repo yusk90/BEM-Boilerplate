@@ -1,3 +1,3 @@
 import welcome from './welcome';
 
-welcome('about 111');
+welcome('about');

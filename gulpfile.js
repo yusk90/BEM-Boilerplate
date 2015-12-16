@@ -58,15 +58,12 @@ gulp.task('css', function () {
 });
 
 gulp.task('js', function (done) {
-    /* return gulp.src('js/home.js')
-    .pipe(webpack(require('./webpack.config.js')))
-    .pipe(gulp.dest(params.js))
-    .pipe(reload({ stream: true }));*/
     webpack(require('./webpack.config.js'), function (err, stats) {
         if (err) throw new gutil.PluginError('webpack', err);
         gutil.log('[webpack]', stats.toString({
-            // output options
+            colors: true
         }));
+        reload();
         done();
     });
 });
@@ -78,9 +75,7 @@ gulp.task('fonts', function () {
 });
 
 gulp.task('images', function () {
-    return gulp.src('blocks/**/*.{png,jpg,jpeg,svg,gif}', {
-        since: gulp.lastRun('images')
-    })
+    return gulp.src('blocks/**/*.{png,jpg,jpeg,svg,gif}')
     .pipe(flatten())
     .pipe(gulp.dest(params.images))
     .pipe(reload({ stream: true }));
@@ -96,14 +91,15 @@ gulp.task('server', function () {
 
 gulp.task('watch', function () {
     gulp.watch('html/**/*', gulp.parallel('html'));
-    gulp.watch(['blocks/**/*', 'blocks/style.css'], gulp.parallel('style', 'images'));
+    gulp.watch(['blocks/**/*.css', 'blocks/style.css'], gulp.parallel('style'));
+    gulp.watch(['blocks/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('images'));
     gulp.watch('css/**/*', gulp.parallel('css'));
     gulp.watch('fonts/**/*', gulp.parallel('fonts'));
 });
 
 gulp.task('build', gulp.series(
     'clean',
-    gulp.parallel('html', 'style', 'css', 'js', 'fonts', 'images'/* , 'favicon'*/)
+    gulp.parallel('html', 'style', 'css', 'js', 'fonts', 'images', 'favicon')
 ));
 
 gulp.task('default', gulp.series('build', gulp.parallel('server', 'watch')));
