@@ -32,8 +32,8 @@ module.exports = {
                 include: __dirname + '/js',
                 loader: 'babel',
                 query: {
-                    presets: ['es2015']
-                    // plugins: ['transform-runtime'] // doesn't work
+                    presets: ['es2015'],
+                    plugins: ['transform-runtime'] // doesn't work
                 }
             }
         ]

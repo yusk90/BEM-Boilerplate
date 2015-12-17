@@ -9,4 +9,17 @@ document.getElementById('loginButton').addEventListener('click', () => {
     }, 'auth');
 }, false);
 
+class MyPoint {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    toString() {
+        return `(${this.x}, ${this.y})`;
+    }
+}
+
+let myClass = new MyPoint(10, 10);
+console.log(myClass);
+
 exports.welcome = welcome;
