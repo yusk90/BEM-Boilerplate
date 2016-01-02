@@ -2,13 +2,14 @@ var gulp = require('gulp'),
     concatCSS = require('gulp-concat-css'),
     browserSync = require('browser-sync').create(),
     reload = browserSync.reload,
-    url = require('gulp-css-url-adjuster'),
     autoprefixer = require('autoprefixer'),
     postcss = require('gulp-postcss'),
     flatten = require('gulp-flatten'),
     mustache = require('gulp-mustache'),
     webpack = require('webpack'),
     gutil = require('gulp-util'),
+    rework = require('gulp-rework'),
+    reworkUrl = require('rework-plugin-url'),
     clean = require('del'),
     params = {
         out: 'public/',
@@ -40,13 +41,17 @@ gulp.task('style', function () {
     .pipe(concatCSS('style.css', {
         rebaseUrls: false
     }))
-    .pipe(url({
-        prepend: 'images/',
-        replace: ['images/fonts/', 'fonts/']
-    }))
     .pipe(postcss([autoprefixer({
         browsers: ['last 2 versions', 'ie >= 8', 'Opera >= 12', 'Safari 6']
     })]))
+    .pipe(rework(reworkUrl(function (url) {
+        if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+            return 'images/' + url;
+        } else if (url.match(/\.(ttf|otf|eot|woff|woff2|svg)/) != null) {
+            return url.replace('../../', '');
+        }
+        return url;
+    })))
     .pipe(gulp.dest(params.out))
     .pipe(reload({ stream: true }));
 });
