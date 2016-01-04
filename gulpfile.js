@@ -47,14 +47,15 @@ gulp.task('style', function (done) {
         spriteSheet: './' + params.images + 'sprite.png',
         pathToSpriteSheetFromCSS: 'images/sprite.png',
         spriteSheetBuildCallback: function (err, result) {
+            var path;
+            spritedImages.length = 0;
             function getFileName(fullPath) {
-                var fullPathArray = fullPath.split('/');
-                return fullPathArray[fullPathArray.length - 1];
+                return fullPath.split('/').pop();
             }
-            for (var path in result.coordinates) {
+            for (path in result.coordinates) {
                 if (result.coordinates.hasOwnProperty(path)) {
                     spritedImages.push(getFileName(path));
-                }  
+                }
             }
             done();
         },
@@ -66,9 +67,9 @@ gulp.task('style', function (done) {
         browsers: ['last 2 versions', 'ie >= 9']
     })]))
     .pipe(rework(reworkUrl(function (url) {
+        var editedPath = url.split('/');
+        editedPath.shift();
         if (url.match(/\.(jpeg|jpg|gif|png)$/) != null && !url.match(/(sprite)/)) {
-            var editedPath = url.split('/');
-            editedPath.shift();
             return 'images/' + editedPath.join('/');
         } else if (url.match(/\.(ttf|otf|eot|woff|woff2|svg)/) != null) {
             return url.replace('../', '');
@@ -118,17 +119,17 @@ gulp.task('server', function () {
     });
 });
 
-gulp.task('styles', gulp.series('style', 'images'));
+gulp.task('style-images', gulp.series('style', 'images'));
 
 gulp.task('build', gulp.series(
     'clean',
-    gulp.parallel('html', 'css', 'js', 'fonts', 'favicon', 'styles')
+    gulp.parallel('html', 'css', 'js', 'fonts', 'favicon', 'style-images')
 ));
 
 gulp.task('watch', function () {
     gulp.watch('html/**/*', gulp.parallel('html'));
     gulp.watch(['blocks/**/*.css', 'blocks/style.css'], gulp.parallel('style'));
-    gulp.watch(['blocks/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('styles'));
+    gulp.watch(['blocks/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('style-images'));
     gulp.watch('css/**/*', gulp.parallel('css'));
     gulp.watch('fonts/**/*', gulp.parallel('fonts'));
 });
