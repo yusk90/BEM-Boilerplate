@@ -1,7 +1,9 @@
 .a {
-    color: magenta;
+    color: green;
     text-align: center;
-    font-size: 40px;
     font-weight: bold;
-    background: url('fake-slider.jpg');
+    background: url('button_bg_white_right.png') no-repeat;
+}
+.a {
+    background: url('test.png');
 }

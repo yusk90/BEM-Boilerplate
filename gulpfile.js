@@ -10,13 +10,17 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     rework = require('gulp-rework'),
     reworkUrl = require('rework-plugin-url'),
+    gulpIgnore = require('gulp-ignore'),
+    gulpIf = require('gulp-if'),
+    spriter = require('gulp-css-spriter'),
     clean = require('del'),
+    spritedImages = [],
     params = {
         out: 'public/',
         images: 'public/images/',
         fonts: 'public/fonts/',
         css: 'public/css/',
-        js: 'public/js'
+        js: 'public/js/'
     };
 
 gulp.task('clean', function () {
@@ -36,19 +40,38 @@ gulp.task('favicon', function () {
     .pipe(reload({ stream: true }));
 });
 
-gulp.task('style', function () {
-    return gulp.src('blocks/style.css')
-    .pipe(concatCSS('style.css', {
-        rebaseUrls: false
+gulp.task('style', function (done) {
+    gulp.src('blocks/style.css')
+    .pipe(concatCSS('style.css'))
+    .pipe(spriter({
+        spriteSheet: './' + params.images + 'sprite.png',
+        pathToSpriteSheetFromCSS: 'images/sprite.png',
+        spriteSheetBuildCallback: function (err, result) {
+            function getFileName(fullPath) {
+                var fullPathArray = fullPath.split('/');
+                return fullPathArray[fullPathArray.length - 1];
+            }
+            for (var path in result.coordinates) {
+                if (result.coordinates.hasOwnProperty(path)) {
+                    spritedImages.push(getFileName(path));
+                }  
+            }
+            done();
+        },
+        spritesmithOptions: {
+            padding: 5
+        }
     }))
     .pipe(postcss([autoprefixer({
-        browsers: ['last 2 versions', 'ie >= 8', 'Opera >= 12', 'Safari 6']
+        browsers: ['last 2 versions', 'ie >= 9']
     })]))
     .pipe(rework(reworkUrl(function (url) {
-        if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
-            return 'images/' + url;
+        if (url.match(/\.(jpeg|jpg|gif|png)$/) != null && !url.match(/(sprite)/)) {
+            var editedPath = url.split('/');
+            editedPath.shift();
+            return 'images/' + editedPath.join('/');
         } else if (url.match(/\.(ttf|otf|eot|woff|woff2|svg)/) != null) {
-            return url.replace('../../', '');
+            return url.replace('../', '');
         }
         return url;
     })))
@@ -82,6 +105,7 @@ gulp.task('fonts', function () {
 gulp.task('images', function () {
     return gulp.src('blocks/**/*.{png,jpg,jpeg,svg,gif}')
     .pipe(flatten())
+    .pipe(gulpIf(spritedImages.length, gulpIgnore.exclude(spritedImages)))
     .pipe(gulp.dest(params.images))
     .pipe(reload({ stream: true }));
 });
@@ -94,17 +118,19 @@ gulp.task('server', function () {
     });
 });
 
-gulp.task('watch', function () {
-    gulp.watch('html/**/*', gulp.parallel('html'));
-    gulp.watch(['blocks/**/*.css', 'blocks/style.css'], gulp.parallel('style'));
-    gulp.watch(['blocks/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('images'));
-    gulp.watch('css/**/*', gulp.parallel('css'));
-    gulp.watch('fonts/**/*', gulp.parallel('fonts'));
-});
+gulp.task('styles', gulp.series('style', 'images'));
 
 gulp.task('build', gulp.series(
     'clean',
-    gulp.parallel('html', 'style', 'css', 'js', 'fonts', 'images', 'favicon')
+    gulp.parallel('html', 'css', 'js', 'fonts', 'favicon', 'styles')
 ));
+
+gulp.task('watch', function () {
+    gulp.watch('html/**/*', gulp.parallel('html'));
+    gulp.watch(['blocks/**/*.css', 'blocks/style.css'], gulp.parallel('style'));
+    gulp.watch(['blocks/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('styles'));
+    gulp.watch('css/**/*', gulp.parallel('css'));
+    gulp.watch('fonts/**/*', gulp.parallel('fonts'));
+});
 
 gulp.task('default', gulp.series('build', gulp.parallel('server', 'watch')));
