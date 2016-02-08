@@ -74,7 +74,7 @@ gulp.task('style', function (done) {
         } else if (url.match(/\.(ttf|otf|eot|woff|woff2|svg)/) != null) {
             return url.replace('../', '');
         }
-        return editedPath;
+        return url;
     })))
     .pipe(gulp.dest(params.out))
     .pipe(reload({ stream: true }));
