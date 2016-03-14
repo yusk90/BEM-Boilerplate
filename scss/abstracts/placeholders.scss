@@ -1,0 +1,18 @@
+%clearfix {
+    &::before,
+    &::after {
+        content: "";
+        display: table;
+    }
+    &::after {
+        clear: both;
+    }
+}
+
+%container {
+    position: relative;
+    width: 100%;
+    max-width: $containerWidth;
+    min-width: 650px;
+    margin: 0 auto;
+}

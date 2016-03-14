@@ -1,0 +1,15 @@
+.header {
+
+    &__container {
+        @extend %container;
+    }
+
+    &__button {
+        color: green;
+        text-align: center;
+        font-weight: bold;
+        background: url('header/button_bg_white_right.png') no-repeat;
+    }
+
+    @extend  %clearfix;
+}

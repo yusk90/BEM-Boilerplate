@@ -1,5 +1,5 @@
 var gulp = require('gulp'),
-    concatCSS = require('gulp-concat-css'),
+    sass = require('gulp-sass'),
     browserSync = require('browser-sync').create(),
     reload = browserSync.reload,
     autoprefixer = require('autoprefixer'),
@@ -41,8 +41,9 @@ gulp.task('favicon', function () {
 });
 
 gulp.task('style', function (done) {
-    gulp.src('blocks/style.css')
-    .pipe(concatCSS('style.css'))
+    gulp.src('scss/style.scss')
+    .pipe(sass('style.css'))
+        .pipe(debug({title: 'unicorn:'}))
     .pipe(spriter({
         spriteSheet: './' + params.images + 'sprite.png',
         pathToSpriteSheetFromCSS: 'images/sprite.png',
@@ -104,7 +105,7 @@ gulp.task('fonts', function () {
 });
 
 gulp.task('images', function () {
-    return gulp.src('blocks/**/*.{png,jpg,jpeg,svg,gif}')
+    return gulp.src('scss/**/*.{png,jpg,jpeg,svg,gif}')
     .pipe(flatten())
     .pipe(gulpIf(spritedImages.length, gulpIgnore.exclude(spritedImages)))
     .pipe(gulp.dest(params.images))
@@ -128,8 +129,8 @@ gulp.task('build', gulp.series(
 
 gulp.task('watch', function () {
     gulp.watch('html/**/*', gulp.parallel('html'));
-    gulp.watch(['blocks/**/*.css', 'blocks/style.css'], gulp.parallel('style'));
-    gulp.watch(['blocks/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('style-images'));
+    gulp.watch(['scss/**/*.scss', 'scss/style.scss'], gulp.parallel('style'));
+    gulp.watch(['scss/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('style-images'));
     gulp.watch('css/**/*', gulp.parallel('css'));
     gulp.watch('fonts/**/*', gulp.parallel('fonts'));
 });
