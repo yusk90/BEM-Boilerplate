@@ -72,7 +72,7 @@ gulp.task('style', function (done) {
         if (url.match(/\.(jpeg|jpg|gif|png)$/) != null && !url.match(/(sprite)/)) {
             return 'images/' + editedPath.join('/');
         } else if (url.match(/\.(ttf|otf|eot|woff|woff2|svg)/) != null) {
-            return url.replace('../', '');
+            return url.replace('../../', '');
         }
         return url;
     })))
