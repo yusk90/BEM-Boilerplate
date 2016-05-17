@@ -6,8 +6,6 @@ var gulp = require('gulp'),
     postcss = require('gulp-postcss'),
     flatten = require('gulp-flatten'),
     mustache = require('gulp-mustache'),
-    webpack = require('webpack'),
-    gutil = require('gulp-util'),
     rework = require('gulp-rework'),
     reworkUrl = require('rework-plugin-url'),
     gulpIgnore = require('gulp-ignore'),
@@ -86,15 +84,10 @@ gulp.task('css', function () {
     .pipe(reload({ stream: true }));
 });
 
-gulp.task('js', function (done) {
-    webpack(require('./webpack.config.js'), function (err, stats) {
-        if (err) throw new gutil.PluginError('webpack', err);
-        gutil.log('[webpack]', stats.toString({
-            colors: true
-        }));
-        reload();
-        done();
-    });
+gulp.task('js', function () {
+    return gulp.src('js/*.js')
+    .pipe(gulp.dest(params.js))
+    .pipe(reload({ stream: true }));
 });
 
 gulp.task('fonts', function () {
@@ -131,6 +124,7 @@ gulp.task('watch', function () {
     gulp.watch(['scss/**/*.scss', 'scss/style.scss'], gulp.parallel('style'));
     gulp.watch(['scss/**/*.{png,jpg,jpeg,svg,gif}'], gulp.parallel('style-images'));
     gulp.watch('css/**/*', gulp.parallel('css'));
+    gulp.watch('js/**/*', gulp.parallel('js'));
     gulp.watch('fonts/**/*', gulp.parallel('fonts'));
 });
 
