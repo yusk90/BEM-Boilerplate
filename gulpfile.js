@@ -42,7 +42,7 @@ gulp.task('favicon', function () {
 
 gulp.task('style', function (done) {
     gulp.src('scss/style.scss')
-    .pipe(sass('style.css'))
+    .pipe(sass())
     .pipe(spriter({
         spriteSheet: './' + params.images + 'sprite.png',
         pathToSpriteSheetFromCSS: 'images/sprite.png',
